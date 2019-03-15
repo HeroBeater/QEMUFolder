@@ -66,22 +66,35 @@ def getHexStreamsFromElfExecutableSections(filename):
 
 
 if __name__ == '__main__':
-    if sys.argv[1] == '--test':
-
+    if sys.argv[1] == '-length' and sys.argv[3] == '--test':
+    	length = int(sys.argv[2])
         md = Cs(CS_ARCH_X86, CS_MODE_64)
-        for filename in sys.argv[2:]:
+        for filename in sys.argv[4:]:
             r = getHexStreamsFromElfExecutableSections(filename)
             print "Found ", len(r), " executable sections:"
             i = 0
             for s in r:
-                print "   ", i, ": ", s['name'], "0x", hex(s['addr']), s['hexStream']
+                #print "   ", i, ": ", s['name'], "0x", hex(s['addr']), s['hexStream']
                 i += 1
                 
                 hexdata = s['hexStream']
-                gadget = hexdata[0 : 10]           
+                gadget = hexdata           
                 gadget = convertXCS(gadget)
                 offset = 0
+                list_gadgets = []
+                temp = []
                 for (address, size, mnemonic, op_str) in md.disasm_lite(gadget, offset):
-                    print ("gadget: %s %s \n") %(mnemonic, op_str)
+                    if mnemonic[:3] == 'ret':
+                    	temp.append((str(str(hex(address))[:-1]),str(size),str(mnemonic), str(op_str)))
+                    	if len(temp)>=length:
+                    		list_gadgets.append(temp[(len(temp)-length-1):])
+                    	temp = []
+                    elif mnemonic[0] == 'j':
+                    	temp = []
+                    else:
+                    	temp.append((str(str(hex(address))[:-1]),str(size),str(mnemonic), str(op_str)))
+                print list_gadgets
+                print len(list_gadgets)
+                    #print ("gadget: %s %s \n") %(mnemonic, op_str)
 
             
