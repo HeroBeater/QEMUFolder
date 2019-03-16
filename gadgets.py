@@ -74,31 +74,32 @@ if __name__ == '__main__':
             print "Found ", len(r), " executable sections:"
             i = 0
             for s in r:
-                i += 1
+            	i += 1
                 
                 hexdata = s['hexStream']
                 gadget = hexdata           
                 gadget = convertXCS(gadget)
                 offset = 0
                 list_gadgets = []
-                gad = ''
+                temp = []
                 for (address, size, mnemonic, op_str) in md.disasm_lite(gadget, offset):
-                    if gad == '':
-                        if mnemonic[:3] != 'ret' and mnemonic[0] != 'j':
-                            gad = str(hex(address)[:-1]) + ': ' + str(mnemonic) + ' ' + str(op_str)
-                        else:
-                            gad = ''
+                    if mnemonic[:3] == 'ret':
+                    	temp.append((str(hex(address)[:-1]),str(size),str(mnemonic), str(op_str)))
+                    	if len(temp)>length:
+                    		t = temp[(len(temp)-length-1):]
+                    		gad = ''
+                    		i = 0
+                    		for x in t:
+                    			if i == 0:
+                    				gad = x[0] + ': ' + x[2] + ' ' + x[3]
+                    			else:
+                    				gad = gad + ', ' + x[2] + ' ' + x[3]
+                    			i+=1
+                    		list_gadgets.append(gad)
+                    	temp = []
+                    elif mnemonic[0] == 'j':
+                    	temp = []
                     else:
-                        if mnemonic[0] == 'j':
-                            gad = ''
-                        elif mnemonic[:3] == 'ret':
-                            gad = gad + ',  ' + str(mnemonic) + ' ' + str(op_str) + ';'
-                            if gad.count(',') == length:
-                                list_gadgets.append(gad)
-                            else:
-                                gad = ''
-                        else:
-                            gad = gad + ',  ' + str(mnemonic) + ' ' + str(op_str)
+                    	temp.append((str(hex(address)[:-1]),str(size),str(mnemonic), str(op_str)))
                 print('\n'.join(map(str, list_gadgets)))
                 print len(list_gadgets)
-            
