@@ -74,7 +74,6 @@ if __name__ == '__main__':
             print "Found ", len(r), " executable sections:"
             i = 0
             for s in r:
-                #print "   ", i, ": ", s['name'], "0x", hex(s['addr']), s['hexStream']
                 i += 1
                 
                 hexdata = s['hexStream']
@@ -82,19 +81,20 @@ if __name__ == '__main__':
                 gadget = convertXCS(gadget)
                 offset = 0
                 list_gadgets = []
-                temp = []
+                gad = ''
                 for (address, size, mnemonic, op_str) in md.disasm_lite(gadget, offset):
                     if mnemonic[:3] == 'ret':
-                    	temp.append((str(str(hex(address))[:-1]),str(size),str(mnemonic), str(op_str)))
-                    	if len(temp)>=length:
-                    		list_gadgets.append(temp[(len(temp)-length-1):])
-                    	temp = []
+                        gad = gad + ', ' + str(mnemonic) + ' ' + str(op_str) + ';'
+                        if gad.count(',') == length and gad != ', ret ;':
+                            list_gadgets.append(gad)
+                        gad = ''
                     elif mnemonic[0] == 'j':
-                    	temp = []
+                        gad = ''
                     else:
-                    	temp.append((str(str(hex(address))[:-1]),str(size),str(mnemonic), str(op_str)))
-                print list_gadgets
+                        if gad == '':
+                            gad = str(str(hex(address))[:-1]) + ': ' + str(mnemonic) + ' ' + str(op_str)
+                        else:
+                            gad = gad + ', ' + str(mnemonic) + ' ' + str(op_str)
+                print('\n'.join(map(str, list_gadgets)))
                 print len(list_gadgets)
-                    #print ("gadget: %s %s \n") %(mnemonic, op_str)
-
             
