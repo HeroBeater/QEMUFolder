@@ -87,6 +87,9 @@ if __name__ == '__main__':
                     	temp.append((str(hex(address)[:-1]),str(size),str(mnemonic), str(op_str)))
                     	if len(temp)>length:
                     		t = temp[(len(temp)-length-1):]
+                    		list_gadgets.append(t)
+                    		#if one wants to print the gadgets as string
+                    		"""
                     		gad = ''
                     		i = 0
                     		for x in t:
@@ -96,6 +99,7 @@ if __name__ == '__main__':
                     				gad = gad + ', ' + x[2] + ' ' + x[3]
                     			i+=1
                     		list_gadgets.append(gad)
+                    		"""
                     	temp = []
                     elif mnemonic[0] == 'j':
                     	temp = []
@@ -103,3 +107,10 @@ if __name__ == '__main__':
                     	temp.append((str(hex(address)[:-1]),str(size),str(mnemonic), str(op_str)))
                 print('\n'.join(map(str, list_gadgets)))
                 print len(list_gadgets)
+
+def compare(myGadgets, ROP_file):
+	count = 0
+	for x in myGadgets:
+		if ROP_file.count(x[0][2:]) > 0:
+			count +=1
+	return count
