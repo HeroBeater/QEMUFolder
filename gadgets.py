@@ -83,18 +83,22 @@ if __name__ == '__main__':
                 list_gadgets = []
                 gad = ''
                 for (address, size, mnemonic, op_str) in md.disasm_lite(gadget, offset):
-                    if mnemonic[:3] == 'ret':
-                        gad = gad + ', ' + str(mnemonic) + ' ' + str(op_str) + ';'
-                        if gad.count(',') == length and gad != ', ret ;':
-                            list_gadgets.append(gad)
-                        gad = ''
-                    elif mnemonic[0] == 'j':
-                        gad = ''
-                    else:
-                        if gad == '':
-                            gad = str(str(hex(address))[:-1]) + ': ' + str(mnemonic) + ' ' + str(op_str)
+                    if gad == '':
+                        if mnemonic[:3] != 'ret' and mnemonic[0] != 'j':
+                            gad = str(hex(address)[:-1]) + ': ' + str(mnemonic) + ' ' + str(op_str)
                         else:
-                            gad = gad + ', ' + str(mnemonic) + ' ' + str(op_str)
+                            gad = ''
+                    else:
+                        if mnemonic[0] == 'j':
+                            gad = ''
+                        elif mnemonic[:3] == 'ret':
+                            gad = gad + ',  ' + str(mnemonic) + ' ' + str(op_str) + ';'
+                            if gad.count(',') == length:
+                                list_gadgets.append(gad)
+                            else:
+                                gad = ''
+                        else:
+                            gad = gad + ',  ' + str(mnemonic) + ' ' + str(op_str)
                 print('\n'.join(map(str, list_gadgets)))
                 print len(list_gadgets)
             
